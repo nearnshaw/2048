@@ -1,9 +1,16 @@
 
+const BoardSize = 4;
+
+const fourProbability = 0.1;
+
+const deltaX = [-1, 0, 1, 0];
+const deltaY = [0, -1, 0, 1];
+
 
 var rotateLeft = function (matrix) {
   var rows = matrix.length;
   var columns = matrix[0].length;
-  var res = [];
+  var res: any = [];
   for (var row = 0; row < rows; ++row) {
     res.push([]);
     for (var column = 0; column < columns; ++column) {
@@ -13,16 +20,27 @@ var rotateLeft = function (matrix) {
   return res;
 };
 
-class Tile {
-  constructor(value, row, column) {
-    this.value = value || 0;
+
+let TileId: number = 0;
+
+export class Tile {
+  value: number | 0
+  row: number
+  column: number
+  oldRow: number
+  oldColumn: number
+  markForDeletion: boolean
+  mergedInto?: Tile 
+  id: number
+
+  constructor (value, row, column)  {
+    this.value  =  value || 0;
     this.row = row || -1;
     this.column = column || -1;
     this.oldRow = -1;
     this.oldColumn = -1;
     this.markForDeletion = false;
-    this.mergedInto = null;
-    this.id = Tile.id++;
+    this.id = TileId++;
   }
   moveTo(row, column) {
     this.oldRow = this.row;
@@ -51,7 +69,6 @@ class Tile {
   }
 }
 
-Tile.id = 0;
 
 
 
@@ -59,36 +76,49 @@ Tile.id = 0;
 
 
 
+export class Board {
+  tiles: Tile[]
+  cells: Tile[][]
+  won : boolean
+  size: number
+  fourProbability: number
+  deltaX : number[]
+  deltaY: number[]
 
-class Board {
   constructor() {
     this.tiles = [];
     this.cells = [];
-    for (var i = 0; i < Board.size; ++i) {
-      this.cells[i] = [this.addTile(), this.addTile(), this.addTile(), this.addTile()];
+    this.size = BoardSize;
+
+    for (var i = 0; i < this.size; ++i) {
+      this.cells[i] = [this.addTile(0,i,1), this.addTile(0,i,2), this.addTile(0,i,3), this.addTile(0,i,4)];
     }
     this.addRandomTile();
     this.setPositions();
     this.won = false;
+
+    this.fourProbability = fourProbability;
+    this.deltaX = deltaX;
+    this.deltaY = deltaY;
+
   }
-  addTile() {
-    var res = new Tile;
-    Tile.apply(res, arguments);
+  addTile(value, row, column) {
+    var res: Tile = new Tile(value, row, column);
     this.tiles.push(res);
     return res;
   }
   moveLeft() {
     var hasChanged = false;
-    for (var row = 0; row < Board.size; ++row) {
+    for (var row = 0; row < this.size; ++row) {
       var currentRow = this.cells[row].filter(tile => tile.value != 0);
       var resultRow = [];
-      for (var target = 0; target < Board.size; ++target) {
+      for (var target = 0; target < this.size; ++target) {
         var targetTile = currentRow.length ? currentRow.shift() : this.addTile();
         if (currentRow.length > 0 && currentRow[0].value == targetTile.value) {
           var tile1 = targetTile;
-          targetTile = this.addTile(targetTile.value);
+          targetTile = this.addTile(targetTile.value, targetTile.row, targetTile.column  );
           tile1.mergedInto = targetTile;
-          var tile2 = currentRow.shift();
+          var tile2 : = currentRow.shift();
           tile2.mergedInto = targetTile;
           targetTile.value += tile2.value;
         }
@@ -112,9 +142,9 @@ class Board {
     });
   }
   addRandomTile() {
-    var emptyCells = [];
-    for (var r = 0; r < Board.size; ++r) {
-      for (var c = 0; c < Board.size; ++c) {
+    var emptyCells: {}[] = [];
+    for (var r:number = 0; r < this.size; ++r) {
+      for (var c:number = 0; c < this.size; ++c) {
         if (this.cells[r][c].value == 0) {
           emptyCells.push({ r: r, c: c });
         }
@@ -122,7 +152,7 @@ class Board {
     }
     var index = ~~(Math.random() * emptyCells.length);
     var cell = emptyCells[index];
-    var newValue = Math.random() < Board.fourProbability ? 4 : 2;
+    var newValue = Math.random() < this.fourProbability ? 4 : 2;
     this.cells[cell.r][cell.c] = this.addTile(newValue);
   }
   move(direction) {
@@ -132,7 +162,7 @@ class Board {
       this.cells = rotateLeft(this.cells);
     }
     var hasChanged = this.moveLeft();
-    for (var i = direction; i < 4; ++i) {
+    for (var i:number = direction; i < 4; ++i) {
       this.cells = rotateLeft(this.cells);
     }
     if (hasChanged) {
@@ -150,13 +180,13 @@ class Board {
   }
   hasLost() {
     var canMove = false;
-    for (var row = 0; row < Board.size; ++row) {
-      for (var column = 0; column < Board.size; ++column) {
+    for (var row = 0; row < this.size; ++row) {
+      for (var column = 0; column < this.size; ++column) {
         canMove |= (this.cells[row][column].value == 0);
         for (var dir = 0; dir < 4; ++dir) {
-          var newRow = row + Board.deltaX[dir];
-          var newColumn = column + Board.deltaY[dir];
-          if (newRow < 0 || newRow >= Board.size || newColumn < 0 || newColumn >= Board.size) {
+          var newRow = row + this.deltaX[dir];
+          var newColumn = column + this.deltaY[dir];
+          if (newRow < 0 || newRow >= this.size || newColumn < 0 || newColumn >= Board.size) {
             continue;
           }
           canMove |= (this.cells[row][column].value == this.cells[newRow][newColumn].value);
@@ -168,17 +198,5 @@ class Board {
 }
 
 
-Board.size = 4;
-
-
-
-Board.fourProbability = 0.1;
-
-
-
-
-
-Board.deltaX = [-1, 0, 1, 0];
-Board.deltaY = [0, -1, 0, 1];
 
 

@@ -24,7 +24,7 @@ var rotateLeft = function (matrix) {
 let TileId: number = 0;
 
 export class Tile {
-  value: number | 0
+  value: Number
   row: number
   column: number
   oldRow: number
@@ -108,23 +108,23 @@ export class Board {
     return res;
   }
   moveLeft() {
-    var hasChanged = false;
+    var hasChanged: boolean = false;
     for (var row = 0; row < this.size; ++row) {
       var currentRow = this.cells[row].filter(tile => tile.value != 0);
-      var resultRow = [];
+      var resultRow: Tile[] = [];
       for (var target = 0; target < this.size; ++target) {
-        var targetTile = currentRow.length ? currentRow.shift() : this.addTile();
+        var targetTile : any = currentRow.length ? currentRow.shift() : this.addTile(0,-1,-1);
         if (currentRow.length > 0 && currentRow[0].value == targetTile.value) {
-          var tile1 = targetTile;
+          var tile1 : Tile = targetTile;
           targetTile = this.addTile(targetTile.value, targetTile.row, targetTile.column  );
           tile1.mergedInto = targetTile;
-          var tile2 : = currentRow.shift();
+          var tile2 : any = currentRow.shift();
           tile2.mergedInto = targetTile;
           targetTile.value += tile2.value;
         }
         resultRow[target] = targetTile;
-        this.won |= (targetTile.value == 2048);
-        hasChanged |= (targetTile.value != this.cells[row][target].value);
+        this.won = (targetTile.value == 2048? true : false);
+        hasChanged = (targetTile.value != this.cells[row][target].value ? true: false);
       }
       this.cells[row] = resultRow;
     }
@@ -142,7 +142,7 @@ export class Board {
     });
   }
   addRandomTile() {
-    var emptyCells: {}[] = [];
+    var emptyCells: any[] = [];
     for (var r:number = 0; r < this.size; ++r) {
       for (var c:number = 0; c < this.size; ++c) {
         if (this.cells[r][c].value == 0) {
@@ -153,7 +153,7 @@ export class Board {
     var index = ~~(Math.random() * emptyCells.length);
     var cell = emptyCells[index];
     var newValue = Math.random() < this.fourProbability ? 4 : 2;
-    this.cells[cell.r][cell.c] = this.addTile(newValue);
+    this.cells[cell.r][cell.c] = this.addTile(newValue, cell.r, cell.c);
   }
   move(direction) {
     // 0 -> left, 1 -> up, 2 -> right, 3 -> down
@@ -179,17 +179,17 @@ export class Board {
     return this.won;
   }
   hasLost() {
-    var canMove = false;
+    var canMove: boolean = false;
     for (var row = 0; row < this.size; ++row) {
       for (var column = 0; column < this.size; ++column) {
-        canMove |= (this.cells[row][column].value == 0);
+        canMove = (this.cells[row][column].value == 0? true : false);
         for (var dir = 0; dir < 4; ++dir) {
           var newRow = row + this.deltaX[dir];
           var newColumn = column + this.deltaY[dir];
-          if (newRow < 0 || newRow >= this.size || newColumn < 0 || newColumn >= Board.size) {
+          if (newRow < 0 || newRow >= this.size || newColumn < 0 || newColumn >= this.size) {
             continue;
           }
-          canMove |= (this.cells[row][column].value == this.cells[newRow][newColumn].value);
+          canMove = (this.cells[row][column].value == this.cells[newRow][newColumn].value? true: false)
         }
       }
     }

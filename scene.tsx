@@ -1,5 +1,5 @@
 import * as DCL from 'decentraland-api'
-import { Vector3Component, Vector2Component } from 'decentraland-api'
+import { Vector3Component } from 'decentraland-api'
 //import '/original game/2048-react-master/src/index.js'
 //import '/original game/2048-react-master/src/board.js'
 //import {BoardView} from 'src/index'
@@ -28,6 +28,7 @@ export default class HouseScene extends DCL.ScriptableScene<any, IState> {
   buttonClick(direction:number){
     console.log("button clicked")
     this.setState({board: this.state.board.move(direction)});
+    this.forceUpdate()
 
   }
 

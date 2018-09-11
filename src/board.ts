@@ -123,8 +123,8 @@ export class Board {
           targetTile.value += tile2.value;
         }
         resultRow[target] = targetTile;
-        this.won = (targetTile.value == 2048? true : false);
-        hasChanged = (targetTile.value != this.cells[row][target].value ? true: false);
+        this.won = (targetTile.value == 2048? true : this.won);
+        hasChanged = (targetTile.value != this.cells[row][target].value ? true: hasChanged);
       }
       this.cells[row] = resultRow;
     }
@@ -153,22 +153,25 @@ export class Board {
     var index = ~~(Math.random() * emptyCells.length);
     var cell = emptyCells[index];
     var newValue = Math.random() < this.fourProbability ? 4 : 2;
+    console.log("new cell added, " + cell.r + " & " + cell.c)
     this.cells[cell.r][cell.c] = this.addTile(newValue, cell.r, cell.c);
+    
   }
   move(direction) {
     // 0 -> left, 1 -> up, 2 -> right, 3 -> down
     this.clearOldTiles();
-    for (var i = 0; i < direction; ++i) {
+    for (var i : number = 0; i < direction; ++i) {
       this.cells = rotateLeft(this.cells);
     }
     var hasChanged = this.moveLeft();
-    for (var i:number = direction; i < 4; ++i) {
+    for (var i : number = direction; i < 4; ++i) {
       this.cells = rotateLeft(this.cells);
     }
     if (hasChanged) {
       this.addRandomTile();
     }
     this.setPositions();
+    
     return this;
   }
   clearOldTiles() {
@@ -182,14 +185,14 @@ export class Board {
     var canMove: boolean = false;
     for (var row = 0; row < this.size; ++row) {
       for (var column = 0; column < this.size; ++column) {
-        canMove = (this.cells[row][column].value == 0? true : false);
+        canMove = (this.cells[row][column].value == 0? true : canMove);
         for (var dir = 0; dir < 4; ++dir) {
           var newRow = row + this.deltaX[dir];
           var newColumn = column + this.deltaY[dir];
           if (newRow < 0 || newRow >= this.size || newColumn < 0 || newColumn >= this.size) {
             continue;
           }
-          canMove = (this.cells[row][column].value == this.cells[newRow][newColumn].value? true: false)
+          canMove = (this.cells[row][column].value == this.cells[newRow][newColumn].value? true: canMove)
         }
       }
     }

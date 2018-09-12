@@ -62,7 +62,7 @@ export default class HouseScene extends DCL.ScriptableScene<any, IState> {
   
   renderTiles(){
     var tiles = this.state.board.tiles
-      .filter(tile => tile.value != 0)
+      .filter(tile => tile.value != 0 && !tile.mergedInto )
       .map(tile => 
         <entity
           key={tile.id}

@@ -10,7 +10,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "decentraland-api": "latest"
+    "decentraland-api": "latest",
+    "decentraland": "latest"
   },
   "dependencies": {
     "@types/react": "^16.4.13",

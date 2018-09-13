@@ -1,5 +1,6 @@
 import * as DCL from 'decentraland-api'
 import { Vector3Component } from 'decentraland-api'
+import {Tile} from 'components/tile'
 //import '/original game/2048-react-master/src/index.js'
 //import '/original game/2048-react-master/src/board.js'
 //import {BoardView} from 'src/index'
@@ -10,22 +11,59 @@ import {Board} from 'src/board'
 
 // This is an interface, you can use it to enforce the types of your state
 export interface IState {
-  board: Board
+  board: Board,
+  pointerDown: boolean,
+  lookingDirection: Vector3Component,
+  initialDirection: Vector3Component
 }
 
 export default class HouseScene extends DCL.ScriptableScene<any, IState> {
   // This is your initial state and it respects the given IState interface
   state = {
-    board: new Board
+    board: new Board,
+    pointerDown: false,
+    lookingDirection: {x: 0, y:0, z:0},
+    initialDirection: {x: 0, y:0, z:0},
   }
 
   sceneDidMount() {
+
+    this.subscribeTo("pointerDown", e => {
+      this.setState({ pointerDown: true, initialDirection:this.state.lookingDirection })
+    })
+    this.subscribeTo("pointerUp", e => {
+      let deltaX : number = this.state.initialDirection.x - this.state.lookingDirection.x
+      let deltaY : number = this.state.initialDirection.y - this.state.lookingDirection.y
+      let direction: number = -1
+      if(  Math.abs(deltaY) < 3 && deltaX < -5){
+        direction = 0
+      } else if (deltaY > 5 && Math.abs(deltaX) < 3){
+        direction = 1
+      } else if (  Math.abs(deltaY) < 3 && deltaX > 5){
+        direction = 2
+      } else if (deltaY < -5 && Math.abs(deltaX) < 3){
+        direction = 3
+      }
+      console.log( direction + ", deltaX: " + deltaX + " deltaY: " + deltaY )
+      this.shiftBlocks(direction)
+
+      
+      this.setState({ pointerDown: false })
+    })
+
+    this.subscribeTo("rotationChanged", e => {
+      this.setState({ lookingDirection: e.rotation })
+    })
+
+ 
+
 
   }
 
  
 
-  buttonClick(direction:number){
+  shiftBlocks(direction:number){
+    if (direction == -1){return}
     console.log("button clicked")
     this.setState({board: this.state.board.move(direction)});
     this.forceUpdate()
@@ -64,23 +102,11 @@ export default class HouseScene extends DCL.ScriptableScene<any, IState> {
     var tiles = this.state.board.tiles
       .filter(tile => tile.value != 0 && !tile.mergedInto )
       .map(tile => 
-        <entity
-          key={tile.id}
-          position={this.gridToScene(tile.row, tile.column)}
-          transition={
-              {position: { duration: 300, timing: 'linear' }}
-            } >
-
-          <box 
-            key={tile.id.toString + "box"}      
-            color={445643}       
-            />
-            <text
-               key={tile.id.toString + "text"}
-               value={ tile.value.toString()}
-               position={{ x:0, y: 0, z: -1}}
-              />
-          </entity>
+        <Tile
+          id= {tile.id}
+          position= {this.gridToScene(tile.row, tile.column)}
+          value={ tile.value.toString()}
+         />
         );
     return tiles
   }
@@ -92,23 +118,23 @@ export default class HouseScene extends DCL.ScriptableScene<any, IState> {
       <entity>
         <box
           id="button1"
-          position ={{x:1.5, y:1, z:3}}
-          onClick={() => this.buttonClick(1)}
+          position ={{x:1.5, y:1, z:2}}
+          onClick={() => this.shiftBlocks(1)}
           />
         <box
           id="button2"
-          position ={{x:3, y:2, z:3}}
-          onClick={() => this.buttonClick(2)}
+          position ={{x:3, y:2, z:2}}
+          onClick={() => this.shiftBlocks(2)}
           />
         <box
           id="button3"
-          position ={{x:4.5, y:1, z:3}}
-          onClick={() => this.buttonClick(3)}
+          position ={{x:4.5, y:1, z:2}}
+          onClick={() => this.shiftBlocks(3)}
           />
         <box
           id="button4"
-          position ={{x:3, y:0.5, z:3}}
-          onClick={() => this.buttonClick(4)}
+          position ={{x:3, y:0.5, z:2}}
+          onClick={() => this.shiftBlocks(4)}
           />
 
       </entity>

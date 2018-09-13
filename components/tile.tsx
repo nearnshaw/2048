@@ -2,48 +2,49 @@
 import { Vector3Component, ISimplifiedNode } from 'decentraland-api'
 import * as DCL from 'decentraland-api'
 
-// const modelsById: { [key: string]: string } = {
-//   B: 'assets/LP Bishop_White.gltf',
-//   b: 'assets/LP Bishop_Black.gltf',
-//   K: 'assets/LP King_White.gltf',
-//   k: 'assets/LP King_Black.gltf',
-//   N: 'assets/LP Knight_White.gltf',
-//   n: 'assets/LP Knight_Black.gltf',
-//   P: 'assets/LP Pawn_White.gltf',
-//   p: 'assets/LP Pawn_Black.gltf',
-//   Q: 'assets/LP Queen_White.gltf',
-//   q: 'assets/LP Queen_Black.gltf',
-//   R: 'assets/LP Rook_White.gltf',
-//   r: 'assets/LP Rook_Black.gltf'
-// }
 
 
 export interface ITileProps 
 {
   id: string,
   position: Vector3Component,
-  value: number
+  value: Number
 }
 export const Tile = (props: ITileProps) => {
-  return <entity
+  let srcPath = "/models/" + props.value.toString() + ".gltf"
+
+  return (
+  <gltf-model
     key={props.id}
     position={props.position}
     transition={
       {position: { duration: 300, timing: 'linear' }}
       }
-    >
-      <box 
-        key={props.id}      
-        color={445643}       
-      />
-      <text
-          key={props.id}
-          value={ props.value.toString()}
-          position={{ x:0, y: 0, z: -1}}
-        />
-  </entity>
+    src={srcPath}
+    />
+    )
 }
 
+
+// export const Tile = (props: ITileProps) => {
+//   return <entity
+//     key={props.id}
+//     position={props.position}
+//     transition={
+//       {position: { duration: 300, timing: 'linear' }}
+//       }
+//     >
+//       <box 
+//         key={props.id}      
+//         color={445643}       
+//       />
+//       <text
+//           key={props.id}
+//           value={ props.value.toString()}
+//           position={{ x:0, y: 0, z: -1}}
+//         />
+//   </entity>
+// }
 
 
 // class TileView extends React.Component {

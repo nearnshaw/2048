@@ -18,7 +18,9 @@ export interface IState {
   pointerDown: boolean,
   lookingDirection: Vector3Component,
   initialDirection: Vector3Component,
-  openChest: boolean
+  openChest: boolean,
+  boardHeight: number,
+  boardSize: number
 }
 
 export default class the2048Game extends DCL.ScriptableScene<any, IState> {
@@ -28,12 +30,16 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
     pointerDown: false,
     lookingDirection: {x: 0, y:0, z:0},
     initialDirection: {x: 0, y:0, z:0},
-    openChest: false
+    openChest: false,
+    boardHeight: 0,
+    boardSize: 0.2
   }
 
   sceneDidMount() {
     EventManager.init(this.eventSubscriber)
     this.eventSubscriber.on('merge', e => this.mergeTiles());
+    this.eventSubscriber.on('loose', e => this.loose());
+    this.eventSubscriber.on('win', e => this.win());
 
     this.subscribeTo("pointerDown", e => {
       this.setState({ pointerDown: true, initialDirection:this.state.lookingDirection })
@@ -81,15 +87,33 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
   }
 
   openChest(){
-    this.setState({
-      openChest: !this.state.openChest,
-      board: new Board
-    });
     console.log("action chest")
+    if (this.state.openChest){
+      this.setState({
+        openChest: false,
+        boardHeight: 0,
+        boardSize: 0.2
+      });
+    } else {
+      this.setState({
+        openChest: true,
+        board: new Board,
+        boardHeight: 4.5,
+        boardSize: 0.5
+      });
+    }  
   }
 
   mergeTiles(){
     console.log("merged tiles")
+  }
+
+  win(){
+    console.log("win")
+  }
+
+  loose(){
+    console.log("loose")
   }
 
 
@@ -143,12 +167,14 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
           position={{x:5, y:0, z:5}}
           rotation={{x:0, y:90, z: 0}}
         />
+        <entity
+          position={{x:5, y:0.2, z:5}}
+          rotation={{x:0, y:90, z: 0}}
+          scale={0.8}
+        >
         <gltf-model
           id="chest"
           src="models/Chest.gltf"
-          position={{x:5, y:0.3, z:5}}
-          rotation={{x:0, y:90, z: 0}}
-          scale={0.8}
           skeletalAnimation={
             this.state.openChest
                 ? [
@@ -158,20 +184,44 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
                 : [
                       { clip: "Close", playing: true, loop: false },
                       { clip: "Open", playing: true }
+                  ]}
+          />
+          <gltf-model
+          id="light"
+          src="models/Light.gltf"
+          skeletalAnimation={
+            this.state.openChest
+                ? [
+                      { clip: "Light_Close", playing: false },
+                      { clip: "Light_Open", playing: true, loop: false}
+                  ]
+                : [
+                      { clip: "Light_Close", playing: true, loop: false },
+                      { clip: "Light_Open", playing: true }
                   ]
         }
          
           />
-        {this.state.openChest?
-            <entity
-              scale = {0.5}
-              position = {{x:5, y:4.5, z:5}}
+        </entity>
+        <entity
+              id= "board"
+              scale = {this.state.boardSize}
+              position = {{x:5, y:this.state.boardHeight, z:5}}
+              transition={
+
+                { position : { duration: 300, timing: 'sin-in' }}
+              }
               >
-              {this.renderCells()}
-              {this.renderTiles()}
-            </entity>
+                {this.state.openChest? 
+                <entity
+                  id="wrapper"
+                  >    
+                {this.renderCells()}
+                {this.renderTiles()}
+              </entity>
           : <entity/> 
         } 
+         </entity>
        
       </scene>
     )

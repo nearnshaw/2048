@@ -1,3 +1,5 @@
+import {EventManager} from 'ts/EventManager'
+
 
 const BoardSize = 4;
 
@@ -20,9 +22,10 @@ var rotateLeft = function (matrix) {
   return res;
 };
 
-var mergeTiles = async function (old: Tile, target: Tile){
+export var mergeTiles = async function (old: Tile, target: Tile){
   await sleep(250)
   old.mergedInto = target;
+  EventManager.emit("merge")
 }
 
 export function sleep(ms: number = 0) {
@@ -136,11 +139,14 @@ export class Board {
           targetTile.value += tile2.value;
         }
         resultRow[target] = targetTile;
-        this.won = (targetTile.value == 2048? true : this.won);
+        if (targetTile.value == 2048) {
+          this.victory()
+        }
         hasChanged = (targetTile.value != this.cells[row][target].value ? true: hasChanged);
       }
       this.cells[row] = resultRow;
     }
+    this.hasLost()
     return hasChanged;
   }
 
@@ -167,7 +173,7 @@ export class Board {
     var index = ~~(Math.random() * emptyCells.length);
     var cell = emptyCells[index];
     var newValue = Math.random() < this.fourProbability ? 4 : 2;
-    console.log("new cell added, " + cell.r + " & " + cell.c)
+    //console.log("new cell added, " + cell.r + " & " + cell.c)
     this.cells[cell.r][cell.c] = this.addTile(newValue, cell.r, cell.c);
     
   }
@@ -183,6 +189,7 @@ export class Board {
     }
     if (hasChanged) {
       this.addRandomTile();
+      EventManager.emit("newTile")
     }
     this.setPositions();
     
@@ -192,7 +199,9 @@ export class Board {
     this.tiles = this.tiles.filter(tile => tile.markForDeletion == false);
     this.tiles.forEach(tile => { tile.markForDeletion = true; });
   }
-  hasWon() {
+  victory() {
+    EventManager.emit("win")
+    this.won = true
     return this.won;
   }
   hasLost() {
@@ -209,6 +218,9 @@ export class Board {
           canMove = (this.cells[row][column].value == this.cells[newRow][newColumn].value? true: canMove)
         }
       }
+    }
+    if (canMove == false){
+      EventManager.emit("loose")
     }
     return !canMove;
   }

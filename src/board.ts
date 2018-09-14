@@ -20,6 +20,17 @@ var rotateLeft = function (matrix) {
   return res;
 };
 
+var mergeTiles = async function (old: Tile, target: Tile){
+  await sleep(250)
+  old.mergedInto = target;
+}
+
+export function sleep(ms: number = 0) {
+  return new Promise(r => setTimeout(r, ms));
+}
+   
+
+
 
 let TileId: number = 0;
 
@@ -119,7 +130,9 @@ export class Board {
           targetTile = this.addTile(targetTile.value, targetTile.row, targetTile.column  );
           tile1.mergedInto = targetTile;
           var tile2 : any = currentRow.shift();
-          tile2.mergedInto = targetTile;
+          tile2.row = tile1.row
+          tile2.column = tile1.column
+          mergeTiles(tile2, targetTile)
           targetTile.value += tile2.value;
         }
         resultRow[target] = targetTile;
@@ -130,6 +143,7 @@ export class Board {
     }
     return hasChanged;
   }
+
   setPositions() {
     this.cells.forEach((row, rowIndex) => {
       row.forEach((tile, columnIndex) => {

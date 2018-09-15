@@ -9,7 +9,8 @@ export interface ITileProps
   id: string,
   position: Vector3Component,
   value: Number,
-  speed: number
+  speed: number,
+  justAdded: boolean
 }
 export const Tile = (props: ITileProps) => {
   let srcPath = "/models/" + props.value.toString() + ".gltf"
@@ -18,10 +19,12 @@ export const Tile = (props: ITileProps) => {
   <gltf-model
     key={props.id}
     position={props.position}
-    transition={
-      {position: { duration: props.speed, timing: 'linear' }}
-      }
+    transition={{
+      position: { duration: props.speed, timing: 'linear' },
+      scale: { duration: 350, timing: 'bounce-in' }
+    }}
     src={srcPath}
+    scale={props.justAdded? 0.2 : 1}
     />
     )
 }

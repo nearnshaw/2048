@@ -46,6 +46,7 @@ export class Tile {
   markForDeletion: boolean
   mergedInto?: Tile 
   id: number
+  justAdded: boolean
 
   constructor (value, row, column)  {
     this.value  =  value || 0;
@@ -55,6 +56,7 @@ export class Tile {
     this.oldColumn = -1;
     this.markForDeletion = false;
     this.id = TileId++;
+    this.justAdded = true;
   }
   moveTo(row, column) {
     this.oldRow = this.row;
@@ -80,6 +82,10 @@ export class Tile {
   }
   toColumn() {
     return this.mergedInto ? this.mergedInto.column : this.column;
+  }
+  async makeBig(){
+    await sleep(100)
+    this.justAdded = false
   }
 }
 
@@ -137,6 +143,7 @@ export class Board {
           tile2.column = tile1.column
           mergeTiles(tile2, targetTile)
           targetTile.value += tile2.value;
+          targetTile.makeBig()
         }
         resultRow[target] = targetTile;
         if (targetTile.value == 2048) {
@@ -175,7 +182,7 @@ export class Board {
     var newValue = Math.random() < this.fourProbability ? 4 : 2;
     //console.log("new cell added, " + cell.r + " & " + cell.c)
     this.cells[cell.r][cell.c] = this.addTile(newValue, cell.r, cell.c);
-    
+    this.cells[cell.r][cell.c].makeBig()
   }
   move(direction) {
     // 0 -> left, 1 -> up, 2 -> right, 3 -> down

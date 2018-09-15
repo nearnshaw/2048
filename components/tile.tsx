@@ -1,5 +1,5 @@
 
-import { Vector3Component, ISimplifiedNode } from 'decentraland-api'
+import { Vector3Component } from 'decentraland-api'
 import * as DCL from 'decentraland-api'
 
 

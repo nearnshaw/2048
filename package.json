@@ -4,6 +4,7 @@
   "description": "My new Decentraland project",
   "scripts": {
     "start": "dcl start",
+    "now-start": "dcl start --ci",
     "build": "decentraland-compiler build.json",
     "watch": "decentraland-compiler build.json --watch"
   },

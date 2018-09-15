@@ -118,7 +118,7 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
         this.setState({
           openChest: chestState.opening,
           board: new Board,
-          boardHeight: 4.5,
+          boardHeight: 5.5,
           boardSize: 0.45,
           playingOpenChest: true,
           playingBackgroundMusic: true
@@ -309,7 +309,7 @@ export default class the2048Game extends DCL.ScriptableScene<any, IState> {
         <plane
           id="logo"
           material="#logoTexture"
-          position={{x:5, y:8, z:5}}
+          position={{x:5, y:9, z:5}}
           scale={6}
         />
       

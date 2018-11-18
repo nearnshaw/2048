@@ -11,3 +11,4 @@ export namespace EventManager {
     eventSubscriber.emit(eventType, ...params)
   }
 }
+
